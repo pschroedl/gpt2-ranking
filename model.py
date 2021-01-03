@@ -101,7 +101,10 @@ class Scorer(ScorerBase):
         from shared import download_model
         download_model(path)
         print('loading from '+path)
-        weights = torch.load(path)
+        if torch.cuda.is_available():
+            weights = torch.load(path)
+        else:
+            weights = torch.load(path, map_location=torch.device('cpu'))
         if path.endswith('.pkl'):
             # DialoGPT checkpoint
             weights['score.weight'] = weights['lm_head.decoder.weight'][self.ix_EOS: self.ix_EOS+1, :]
