@@ -15,32 +15,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-cloudbuild
+  name: gpt2-ranking
   labels:
-    app: hello-cloudbuild
+    app: gpt2-ranking
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello-cloudbuild
+      app: gpt2-ranking
   template:
     metadata:
       labels:
-        app: hello-cloudbuild
+        app: gpt2-ranking
     spec:
       containers:
-      - name: hello-cloudbuild
-        image: gcr.io/GOOGLE_CLOUD_PROJECT/hello-cloudbuild:COMMIT_SHA
+      - name: gpt2-ranking
+        image: gcr.io/GOOGLE_CLOUD_PROJECT/gpt2-ranking:COMMIT_SHA
         ports:
         - containerPort: 8080
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: hello-cloudbuild
+  name: gpt2-ranking
 spec:
   selector:
-    app: hello-cloudbuild
+    app: gpt2-ranking
   ports:
   - protocol: TCP
     port: 80

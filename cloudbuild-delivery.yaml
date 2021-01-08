@@ -15,7 +15,7 @@
 # [START cloudbuild-delivery]
 steps:
 # This step deploys the new version of our container image
-# in the gpt2-ranker-cloudbuild Kubernetes Engine cluster.
+# in the gpt2-ranker Kubernetes Engine cluster.
 - name: 'gcr.io/cloud-builders/kubectl'
   id: Deploy
   args:
@@ -24,7 +24,7 @@ steps:
   - 'kubernetes.yaml'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=us-central1-b'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=gpt2-ranker-cloudbuild'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=gpt2-ranker'
 
 # This step copies the applied manifest to the production branch
 # The COMMIT_SHA variable is automatically
