@@ -19,7 +19,7 @@ metadata:
   labels:
     app: gpt2-ranking
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: gpt2-ranking
