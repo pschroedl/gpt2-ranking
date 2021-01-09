@@ -28,7 +28,7 @@ steps:
   args:
   - 'build'
   - '-t'
-  - 'gcr.io/$PROJECT_ID/gpt2-ranking:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/gpt2-ranker:$SHORT_SHA'
   - '.'
 
 # This step pushes the image to Container Registry
@@ -38,5 +38,45 @@ steps:
   id: Push
   args:
   - 'push'
-  - 'gcr.io/$PROJECT_ID/gpt2-ranking:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/gpt2-ranker:$SHORT_SHA'
 # [END cloudbuild]
+
+# [START cloudbuild-trigger-cd]
+# This step clones the gpt2-ranker-env repository
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Clone env repository
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    gcloud source repos clone gpt2-ranker-env && \
+    cd gpt2-ranker-env && \
+    git checkout candidate && \
+    git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)')
+
+# This step generates the new manifest
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Generate manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes.yaml.tpl | \
+     sed "s/COMMIT_SHA/${SHORT_SHA}/g" > gpt2-ranker-env/kubernetes.yaml
+
+# This step pushes the manifest back to gpt2-ranker-env
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Push manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    set -x && \
+    cd gpt2-ranker-env && \
+    git add kubernetes.yaml && \
+    git commit -m "Deploying image gcr.io/${PROJECT_ID}/gpt2-ranker:${SHORT_SHA}
+    Built from commit ${COMMIT_SHA} of repository gpt2-ranker-app
+    Author: $(git log --format='%an <%ae>' -n 1 HEAD)" && \
+    git push origin candidate
+
+# [END cloudbuild-trigger-cd]
